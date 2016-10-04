@@ -43,6 +43,9 @@ It just fitted for 10 to 100 stock data for a few years. (I checked!!)
 Thus you need to re-design your own architecture and   
 **let me know if you have better one!**
 
+Below is training curve for Top-10 KOSPI stock datas for 4 years using Policy Gradient.  
+![Training Curve](./pg_over_top_10.png)
+
 ## To do
 - Test environment to check overfitting.
 - Elaborate the PG's train interface.
