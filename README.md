@@ -6,6 +6,9 @@ This project provides a general environment for stock market trading simulation 
 Training data is a close price of each day, which is downloaded from Google Finance, but you can apply any data if you want.
 Also, it contains simple Deep Q-learning and Policy Gradient from [Karpathy's post](http://karpathy.github.io/2016/05/31/rl/).
 
+In fact, the purpose of this project is not only providing a best RL solution for stock trading, but also building a general open environment for further research.  
+**So, please, manipulate the model architecture and features to get your own better solution.**
+
 ## Requirements
 
 - Python2.7 or higher
@@ -37,7 +40,12 @@ For example, you can do like this:
 Aware that the provided neural network architecture in this repo is too small to learn.
 So, it may under-fitting if you try to learn every stock data.
 It just fitted for 10 to 100 stock data for a few years. (I checked!!)  
-Thus you need to re-design your own architecture and **let me know if you have better one!**
+Thus you need to re-design your own architecture and   
+**let me know if you have better one!**
+
+## To do
+- Test environment to check overfitting.
+- Elaborate the PG's train interface.
 
 ## Reference
 
