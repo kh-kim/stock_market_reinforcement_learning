@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
 	for line in f:
 		if line.strip() != "":
-			tokens = line.strip().split("\t")
+			tokens = line.strip().split(",") if not "\t" in line else line.strip().split("\t")
 			codeMap[tokens[0]] = tokens[1]
 
 	f.close()
