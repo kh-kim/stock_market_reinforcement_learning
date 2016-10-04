@@ -12,6 +12,7 @@ Also, it contains simple Deep Q-learning and Policy Gradient from [Karpathy's po
 - Numpy
 - HDF5
 - Keras with Beckend (Theano or/and Tensorflow)
+- OpenAI Gym
 - [Deeplearning Assistant](https://github.com/kh-kim/deeplearning_assistant)
 
 ## Usage
@@ -32,6 +33,9 @@ Train Policy Gradient
 ## Reference
 
 [1] [Playing Atari with Deep Reinforcement Learning](http://arxiv.org/abs/1312.5602)
+
 [2] [Deep Reinforcement Learning: Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)
+
 [3] [KEras Reinforcement Learning gYM agents, KeRLym](https://github.com/osh/kerlym)
+
 [4] [Keras plays catch, a single file Reinforcement Learning example](http://edersantana.github.io/articles/keras_rl/)
