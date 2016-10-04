@@ -1,1 +1,0 @@
-/home/kh.kim/workspace/deal2vec/outputParallelizer.py
