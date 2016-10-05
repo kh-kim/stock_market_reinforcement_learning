@@ -39,7 +39,7 @@ class PolicyGradient:
 
 		return discounted_r
 
-	def train(self, max_episode = 100000, max_path_length = 200, verbose = 0):
+	def train(self, max_episode = 1000000, max_path_length = 200, verbose = 0):
 		env = self.env
 		model = self.model
 		avg_reward_sum = 0.
@@ -84,7 +84,7 @@ class PolicyGradient:
 						print "%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env.actions, aprob.tolist())]))
 
 			avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
-			print "%d\t%s\t%.2f\t%.2f\t%.2f" % (e, info["code"], reward_sum, info["cum"], avg_reward_sum)
+			print "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
 
 			dim = len(inputs[0])
 			inputs_ = [[] for i in xrange(dim)]
@@ -98,7 +98,7 @@ class PolicyGradient:
 			rewards_ = np.vstack(rewards)
 
 			discounted_rewards_ = self.discount_rewards(rewards_)
-			#discounted_rewards_ -= np.mean(discounted_rewards_)
+			discounted_rewards_ -= np.mean(discounted_rewards_)
 			discounted_rewards_ /= np.std(discounted_rewards_)
 
 			'''
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
 	f.close()
 
-	env = MarketEnv(dir_path = "./sample_data/", target_codes = codeMap.keys(), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
+	env = MarketEnv(dir_path = "./data/", target_codes = codeMap.keys(), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
 
 	pg = PolicyGradient(env, discount = 0.9, model_filename = modelFilename)
 	pg.train(verbose = 0)
