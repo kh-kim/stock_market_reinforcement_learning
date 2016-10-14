@@ -60,7 +60,7 @@ class MarketModelBuilder(AbstractModelBuilder):
 		from keras.layers import merge, Convolution2D, MaxPooling2D, Input, Dense, Flatten, Dropout, Reshape, TimeDistributed, BatchNormalization, Merge, merge
 		from keras.layers.advanced_activations import LeakyReLU
 
-		dr_rate = 0.5
+		dr_rate = 0.0
 
 		B = Input(shape = (3,))
 		b = Dense(5, activation = "relu")(B)

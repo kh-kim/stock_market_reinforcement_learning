@@ -9,11 +9,12 @@ class MarketEnv(gym.Env):
 
 	PENALTY = 1 #0.999756079
 
-	def __init__(self, dir_path, target_codes, input_codes, start_date, end_date, scope = 60, sudden_death = -1.):
+	def __init__(self, dir_path, target_codes, input_codes, start_date, end_date, scope = 60, sudden_death = -1., cumulative_reward = False):
 		self.startDate = start_date
 		self.endDate = end_date
 		self.scope = scope
 		self.sudden_death = sudden_death
+		self.cumulative_reward = cumulative_reward
 
 		self.inputCodes = []
 		self.targetCodes = []
@@ -80,6 +81,8 @@ class MarketEnv(gym.Env):
 			if sum(self.boughts) < 0:
 				for b in self.boughts:
 					self.reward += -(b + 1)
+				if self.cumulative_reward:
+					self.reward = self.reward / max(1, len(self.boughts))
 
 				if self.sudden_death * len(self.boughts) > self.reward:
 					self.done = True
@@ -91,6 +94,8 @@ class MarketEnv(gym.Env):
 			if sum(self.boughts) > 0:
 				for b in self.boughts:
 					self.reward += b - 1
+				if self.cumulative_reward:
+					self.reward = self.reward / max(1, len(self.boughts))
 
 				if self.sudden_death * len(self.boughts) > self.reward:
 					self.done = True
@@ -115,6 +120,9 @@ class MarketEnv(gym.Env):
 		if self.done:
 			for b in self.boughts:
 				self.reward += (b * (1 if sum(self.boughts) > 0 else -1)) - 1
+			if self.cumulative_reward:
+				self.reward = self.reward / max(1, len(self.boughts))
+
 			self.boughts = []
 
 		return self.state, self.reward, self.done, {"dt": self.targetDates[self.currentTargetIndex], "cum": self.cum, "code": self.targetCode}

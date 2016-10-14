@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from market_env import MarketEnv
@@ -15,14 +16,15 @@ class bcolors:
 
 class PolicyGradient:
 
-	def __init__(self, env, discount = 0.99, model_filename = None):
+	def __init__(self, env, discount = 0.99, model_filename = None, history_filename = None):
 		self.env = env
 		self.discount = discount
 		self.model_filename = model_filename
+		self.history_filename = history_filename
 
 		from keras.optimizers import SGD
 		self.model = MarketPolicyGradientModelBuilder(modelFilename).getModel()
-		sgd = SGD(lr = 0.001, decay = 1e-6, momentum = 0.9, nesterov = True)
+		sgd = SGD(lr = 0.1, decay = 1e-6, momentum = 0.9, nesterov = True)
 		self.model.compile(loss='mse', optimizer='rmsprop')
 
 	def discount_rewards(self, r):
@@ -78,13 +80,17 @@ class PolicyGradient:
 
 				rewards.append(float(reward))
 
-				if verbose == 1:
+				if verbose > 0:
 					if env.actions[action] == "LONG" or env.actions[action] == "SHORT":
 						color = bcolors.FAIL if env.actions[action] == "LONG" else bcolors.OKBLUE
 						print "%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env.actions, aprob.tolist())]))
 
 			avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
-			print "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
+			toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
+			print toPrint
+			if self.history_filename != None:
+				os.system("echo %s >> %s" % (toPrint, self.history_filename))
+
 
 			dim = len(inputs[0])
 			inputs_ = [[] for i in xrange(dim)]
@@ -98,20 +104,24 @@ class PolicyGradient:
 			rewards_ = np.vstack(rewards)
 
 			discounted_rewards_ = self.discount_rewards(rewards_)
-			discounted_rewards_ -= np.mean(discounted_rewards_)
+			#discounted_rewards_ -= np.mean(discounted_rewards_)
 			discounted_rewards_ /= np.std(discounted_rewards_)
 
-			'''
-			if verbose == 1:
-				print "\n".join(map(str, zip(rewards, discounted_rewards_)))
-				'''
-
 			#outputs_ *= discounted_rewards_
-			for i, discounted_reward in enumerate(discounted_rewards_):
+			for i, r in enumerate(zip(rewards, discounted_rewards_)):
+				reward, discounted_reward = r
+
+				if verbose > 1:
+					print outputs_[i],
+				
+				#outputs_[i] = 0.5 + (2 * outputs_[i] - 1) * discounted_reward
 				if discounted_reward < 0:
-					outputs_[i] = (1 - outputs_[i]) * abs(discounted_reward)
-				else:
-					outputs_[i] = outputs_[i] * discounted_reward
+					outputs_[i] = 1 - outputs_[i]
+					outputs_[i] = outputs_[i] / sum(outputs_[i])
+				outputs_[i] = np.minimum(1, np.maximum(0, predicteds_[i] + (outputs_[i] - predicteds_[i]) * abs(discounted_reward)))
+
+				if verbose > 1:
+					print predicteds_[i], outputs_[i], reward, discounted_reward
 
 			model.fit(inputs_, outputs_, nb_epoch = 1, verbose = 0, shuffle = True)
 			model.save_weights(self.model_filename)
@@ -122,6 +132,7 @@ if __name__ == "__main__":
 
 	codeListFilename = sys.argv[1]
 	modelFilename = sys.argv[2] if len(sys.argv) > 2 else None
+	historyFilename = sys.argv[3] if len(sys.argv) > 3 else None
 
 	codeMap = {}
 	f = codecs.open(codeListFilename, "r", "utf-8")
@@ -135,5 +146,5 @@ if __name__ == "__main__":
 
 	env = MarketEnv(dir_path = "./data/", target_codes = codeMap.keys(), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
 
-	pg = PolicyGradient(env, discount = 0.9, model_filename = modelFilename)
-	pg.train(verbose = 0)
+	pg = PolicyGradient(env, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
+	pg.train(verbose = 1)
