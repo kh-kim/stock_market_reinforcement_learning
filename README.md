@@ -16,7 +16,6 @@ In fact, the purpose of this project is not only providing a best RL solution fo
 - HDF5
 - Keras with Beckend (Theano or/and Tensorflow)
 - OpenAI Gym
-- [Deeplearning Assistant](https://github.com/kh-kim/deeplearning_assistant)
 
 ## Usage
 
